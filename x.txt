@@ -1,0 +1,19 @@
+git config --global user.name Yoonseungwook
+
+git config --global user.email lgu81917751@gmail.com
+
+cd C:\Users\smhrd\Desktop\gitsungchae\Java
+
+cd C:\Users\smhrd\Desktop\Androidgit\android
+
+git add Ex0428
+
+git commit -m "Add [Ex0428]"
+
+git push
+
+
+
+C:/Users/AI/Desktop/Python
+
+https://github.com/Yoonseungwook/Python.git
