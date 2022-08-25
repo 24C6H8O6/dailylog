@@ -1,0 +1,125 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+header,
+footer {
+    font-family:'Merriweather';
+    font-weight: 300;
+}
+
+html {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+}
+
+a {
+    color : inherit;
+    text-decoration: none;
+}
+
+ul, li {
+    list-style-type: none;
+}
+
+
+/*navbar*/
+
+.navbar {
+    display: flex;
+    color: black;
+    justify-content: space-between;
+    align-items: center;
+    padding: 35px 30px 10px 40px;
+}
+
+.navbar_logo {
+    font-size: 33px;
+    z-index: 2;
+}
+
+.navbar_logo:hover {
+    color: gray;
+}
+
+.navbar_menu {
+    white-space: nowrap;
+    z-index: 2;
+}
+
+.navbar_menu .dep1 li{
+    vertical-align: top;
+    margin-left: 80px;
+    float: left;
+    font-size: 20px;
+    text-align: center;
+}
+
+.navbar_menu .dep1 li:hover {
+    color: gray;
+    text-decoration: underline;
+    text-underline-offset: 8px;
+}
+
+.navbar_menu .dep1 li:active > .dropdown {
+    display: block;
+}
+
+.navbar_login li:active {
+    display: flex;
+    color: gray;
+}
+
+.navbar_login {
+    white-space: nowrap;
+    z-index: 2;
+}
+
+.navbar_login li {
+    margin-left: 18px;
+    font-size: 16px;
+    text-align: center;
+    float: left;
+}
+
+.toggleBtn {
+    display: none;
+    position: absolute;
+    top: 43px;
+    right: 30px;
+}
+
+/* footer */
+footer {
+    background:rgba(0,0,0,0.3);
+}
+
+.footer {
+    text-align: center;
+    padding: 5px 50px 25px 50px;
+}
+.footer li {
+    color: white;
+    font-size: 15px;
+    font-weight: bolder;
+    position: relative;
+    display: inline-block;
+    padding: 20px 7px 0 10px;
+    margin: 0 35px;
+    white-space:nowrap;
+}
+
+.footer li:hover {
+    color: lightgray;
+}
+
+.footer address {
+    color: #333;
+    padding-top: 20px ;
+    font-size: 11px;
+}
+
+#img01 {
+    width: 100% ;
+}
