@@ -1,9 +1,11 @@
+// 초기 설정
+
 const express = require("express");
 const router = express.Router();
 const mysql = require("mysql");
 const morgan = require("morgan");
 const app = express();
-
+const router2 = require("./router2");
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -11,12 +13,18 @@ const body_parser = require("body-parser");
 app.use(body_parser.json());
 app.use(body_parser.urlencoded({ extended: false }));
 
+const { response } = require("express");
 const path = require("path");
 app.set("view engine", "ejs");
 // 경로 설정
 app.set("views", __dirname + "/views");
-// app.use(express.static(__dirname + "./views"));
 
+// ------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------
+
+// mysql 주소
+
+// AWS RDS mysql 주소
 // const conn = mysql.createConnection({
 //   host: "database-2.cto6iphlk0yd.ap-northeast-2.rds.amazonaws.com",
 //   user: "admin2",
@@ -25,6 +33,7 @@ app.set("views", __dirname + "/views");
 //   database: "auto_farming",
 // });
 
+// 로컬주소 mysql
 const conn = mysql.createConnection({
   host: "127.0.0.1",
   user: "test",
@@ -33,6 +42,9 @@ const conn = mysql.createConnection({
   database: "auto_farming",
 });
 
+// ------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------
+
 // 루트페이지로 접속 시
 router.get("/", function (req, res) {
   res.redirect("http://127.0.0.1:5501/smhrd/express/public/main1.html");
@@ -40,29 +52,10 @@ router.get("/", function (req, res) {
 
 // ------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------------------------
 
-// let btn1 = 2;
-// global.btn1 = btn1;
+// 1 페이지
 
-router.get("/response", function (request, response) {
-  console.log("사용자가 보낸 값 : " + request.query.site);
-
-  response.redirect("http://127.0.0.1:5501/smhrd/express/public/ex04.html");
-  // 외부/내부 해당페이지로 이동
-
-  // 네이버/구글/다음 사용자가 선택한 값으로 사이트를 이동시키시오.
-});
-
-// post방식
-router.post("/post", function (request, response) {
-  console.log("사용자가 보낸 값 : " + request.body.text);
-});
-
-// const { response } = require("express");
-// 사용자가 보낸 값이 post방식일 때 분석해주는 express기능
-
-// Join 기능구현하기
+// Join 회원가입 기능구현하기
 router.post("/Join", function (request, response) {
   let id = request.body.id;
   let pw = request.body.pw;
@@ -82,49 +75,7 @@ router.post("/Join", function (request, response) {
   });
 });
 
-// Delete 기능구현하기
-router.post("/Delete", function (request, response) {
-  let id = request.body.id;
-  let pw = request.body.pw;
-  let nick = request.body.nick;
-
-  let sql = "delete from member where id =?";
-
-  conn.query(sql, [id], function (err, rows) {
-    if (!err) {
-      console.log("삭제성공");
-      response.redirct("http://127.0.0.1:5501/smhrd/express/public/main1.html");
-    } else {
-      console.log("삭제실패" + err);
-    }
-  });
-});
-
-// Update 기능구현하기
-router.post("/Update", function (request, response) {
-  let id = request.body.id;
-  let update = request.body.update;
-  let data = request.body.data;
-
-  let sql = "";
-
-  if (update == "pw") {
-    sql = "update member set pw = ? where id = ?";
-  } else if (update == "nick") {
-    sql = "update member set nick = ? where id = ?";
-  }
-
-  conn.query(sql, [data, id], function (err, rows) {
-    if (!err) {
-      console.log("수정성공");
-      response.redirct("http://127.0.0.1:5501/smhrd/express/public/main1.html");
-    } else {
-      console.log("수정실패" + err);
-    }
-  });
-});
-
-// 검색기능구현하기
+// 검색기능구현하기(추후 삭제 예정)
 router.get("/SelectAll", function (request, response) {
   conn.connect();
 
@@ -153,129 +104,38 @@ router.get("/SelectAll", function (request, response) {
   });
 });
 
-router.post("/OneSelect", function (request, response) {
-  let id = request.body.id;
-
-  let sql = "select * from user_table where user_id = ?";
-  conn.query(sql, [id], function (err, rows) {
-    if (!err) {
-      //console.log(rows);
-
-      response.writeHead(200, { "Content-Type": "text/html;charset=utf-8" });
-      response.write("<html>");
-      response.write("<body>");
-
-      for (let i = 0; i < rows.length; i++) {
-        response.write("ID : " + rows[i].id);
-        // response.write("PW : " + rows[i].pw);
-        // response.write("NICK : " + rows[i].nick);
-      }
-
-      response.write("</body>");
-      response.write("</html>");
-      response.end();
-    } else {
-      console.log("검색실패 : " + err);
-    }
-  });
-});
-
-router.get("/sound/:name", (req, res) => {
-  const { name } = req.params;
-  if (name == "dog") {
-    res.json({ sound: "멍멍" });
-  } else if (name == "cat") {
-    res.json({ sound: "야옹" });
-  } else {
-    res.json({ sound: "알수없음" });
-  }
-});
-// ------------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------------------------
-
-// ★★ 여기서부터 진짜 ★★
-
-// 11월 9일 수요일
-// 선물2 -> insert_db
-// post방식으로 sensor값(온도,습도,수위초음파,로봇초음파,CO2)을 json 방식으로 받아왔을 때
-// mysqlDB에 저장
-
-// router.post("/insert_sensor", function (req, res) {
-//   let param1 = req.body.sensor;
-//   let temp = param1.tem_sensor;
-//   let humd = param1.hum_sensor;
-//   let wtuw = param1.wtuw_sensor;
-//   let rbuw = param1.rbuw_sensor;
-//   let co2 = param1.co2_sensor;
-//   let sql =
-//     "insert into sensor_table(temp, humd, wtuw, rbuw, co2) values(?, ?, ?, ?, ?)";
-
-//   conn.query(sql, [temp, humd, wtuw, rbuw, co2], function (err, rows) {
-//     if (!err) {
-//       console.log("입력성공");
-//     } else {
-//       console.log("입력실패" + err);
-//     }
-//   });
-// });
-
 // Login기능구현하기
 router.post("/Login", function (request, response) {
   let id = request.body.id;
   let pw = request.body.pw;
   let sql = "select * from user_table where user_id = ? and user_pw = ? ";
   conn.query(sql, [id, pw], function (err, rows) {
-    // rows.length;
     if (rows.length > 0) {
       console.log("로그인 성공 : " + rows.length);
-      // response.redirect(
-      //   "http://127.0.0.1:5501/smhrd/express/public/ex06S.html"
-      // );
     } else {
       console.log("로그인 실패 : " + rows.length);
-      // response.redirect(
-      //   "http://127.0.0.1:5501/smhrd/express/public/ex06F.html"
-      // );
     }
-    // console.log(rows);
   });
-  // login(id, pw);
 });
 
-// function login(user_id, user_pw) {
-//   conn.connect();
-//   let sql = "select * from user_table where user_id = ? and user_pw = ?";
-//   conn.query(sql, [user_id, user_pw], function (err, rows) {
-//     // rows.length
-//     if (rows.length > 0) {
-//       console.log("로그인 성공 : " + rows.length);
-//       response.redirect(
-//         "http://127.0.0.1:5501/smhrd/express/public/ex06S.html"
-//       );
-//       // alert("성공");
-//     } else {
-//       console.log("로그인 실패 : " + rows.length);
-//       response.redirect(
-//         "http://127.0.0.1:5501/smhrd/express/public/ex06F.html"
-//       );
-//       // alert("실패");
-//     }
-//   });
-// }
+// 2페이지
 
 // get방식 센서데이터(farm_id 수정 필요)
+// esp32에서 get방식으로 "http://로컬주소:8080/insertSensor" 에
+// 센서데이터(temp, humd, height, rbheight, co2) 보내면
+// 컴퓨터 서버에서 값을 받아 req.query로 tempi, humdi, heighti, rbheighti, co2i로 데이터 저장 후
+// sql에 값 저장
+// (farm_id 수정 필요)
 router.get("/insertSensor", function (req, res) {
   console.log("사용자가 보낸 값 : " + req.query.temp);
   console.log("사용자가 보낸 값 : " + req.query.humd);
-  console.log("사용자가 보낸 값 : " + req.query.height);
-  console.log("사용자가 보낸 값 : " + req.query.robotheight);
+  console.log("사용자가 보낸 값 : " + req.query.wtheight);
+  console.log("사용자가 보낸 값 : " + req.query.rbheight);
   console.log("사용자가 보낸 값 : " + req.query.co2);
   let tempi = req.query.temp;
   let humdi = req.query.humd;
-  let heighti = req.query.height;
-  let robotheighti = req.query.robotheight;
+  let wtheighti = req.query.wtheight;
+  let rbheighti = req.query.rbheight;
   let co2i = req.query.co2;
 
   let sql =
@@ -283,7 +143,7 @@ router.get("/insertSensor", function (req, res) {
 
   conn.query(
     sql,
-    [tempi, humdi, heighti, robotheighti, co2i],
+    [tempi, humdi, wtheighti, rbheighti, co2i],
     function (err, rows) {
       if (!err) {
         console.log("입력성공");
@@ -367,7 +227,6 @@ router.post("/updateAct", function (req, res) {
 // ------------------------------------------------------------------------------------------------------------------
 
 // btn1~btn9 : 물통밸브, 급수밸브, 에어컨적외선, 산소수, 환기적외선, 컨베이어, LED1, LED2, 로봇
-var a1;
 
 router.get("/test1", function (require, response) {
   // toggle();
@@ -375,5 +234,72 @@ router.get("/test1", function (require, response) {
   console.log(a1);
 });
 
+router.get("/auto", function (req, res) {
+  req.params(test2.a);
+});
+
+var a1 = 0;
+router.get("/btn1", function (req, res) {
+  function btn1() {
+    if (a1 == 1) {
+      a1 = 0;
+    } else if (a1 == 0) {
+      a1 = 1;
+    }
+    res.redirect(`http://127.0.0.1:8080/btn1?data=${a1}`);
+  }
+});
+
+// ------------------------------------------------------
+// ------------------------------------------------------
+// icalendar
+
+const ics = require("ics");
+require("dotenv").config({ path: "nodemailer/.env" }); // nodemailer 폴더에 있는 .env 파일을 찾아서 환경변수를 설정
+const nodemailer = require("./nodemailer"); // nodemailer 폴더의 index.js
+
+const event = {
+  start: [2021, 10, 30, 9, 30],
+  duration: { hours: 1, minutes: 30 },
+  title: "신제품 마케팅 회의",
+  description: "신사업팀에서 개발한 신제품에 대한 해외 마케팅 회의",
+  location: "더그레잇 3층",
+  url: "http://thegreat.io",
+  geo: { lat: 30.12, lon: 50.45 },
+  organizer: { name: "Jeremy", email: "orgainizer@mail.com" },
+  attendees: [
+    {
+      name: "참석자1",
+      email: "addr1@mail.com",
+      rsvp: true,
+      role: "REQ-PARTICIPANT",
+    },
+    { name: "참석자2", email: "addr2@mail.com", role: "OPT-PARTICIPANT" },
+  ],
+};
+
+const sendIcs = async () => {
+  ics.createEvent(event, async (error, value) => {
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    let message = {
+      from: "seungwon.go@gmail.com", // 보내는 사람 주소
+      to: "seungwon.go@returnvalues.com", // 받는 사람 주소
+      subject: "신제품 마케팅 회의", // 이메일 제목
+      text: "신사업팀에서 개발한 신제품에 대한 해외 마케팅 회의", // 이메일 내용
+      icalEvent: {
+        filename: "invitation.ics", // iCalendar 첨부 파일 명
+        method: "REQTUEST", // REQUEST-요청, CACEL-취소
+        content: value, // iCalendar 이벤트
+      },
+    };
+    const r = await nodemailer.send(message); // 이메일 발송
+  });
+};
+
+sendIcs();
 module.exports = router;
 // router에 대한 정보를 갖고있는 객체를 외부에서 사용할 수 있게 모듈화
